@@ -4,7 +4,8 @@
   "description": "For fun only discord bot NSFW.",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "start": "node ./index.js"
   },
   "keywords": [
     "fun",
