@@ -43,6 +43,7 @@ client.on('message', async (msg) => {
 
 client.login(BOT_TOKEN);
 
-webServer.listen(process.env.PORT || 8081, () => {
-  console.log(`Example app listening at http://localhost`)
+const PORT = process.env.PORT || 8081
+webServer.listen(PORT, () => {
+  console.log(`listening on ${PORT}`);
 })
