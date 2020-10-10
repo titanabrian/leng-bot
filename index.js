@@ -1,7 +1,15 @@
 const fs = require('fs');
 const Discord = require('discord.js');
+const express = require('express')
+const webServer = express();
+
+webServer.get('/', (req, res) => {
+  res.json({
+        status: 'healty',
+        message: 'Don\'t worry, im healthy'
+      })
+})
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const CELENG_ID = '511656842955587605';
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -34,3 +42,8 @@ client.on('message', async (msg) => {
 })
 
 client.login(BOT_TOKEN);
+
+const PORT = process.env.PORT || 8081
+webServer.listen(PORT, () => {
+  console.log(`listening on ${PORT}`);
+})
