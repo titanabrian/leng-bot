@@ -30,7 +30,7 @@ client.on('message', async (msg) => {
     if(msg.author.bot) return;
     if(!msg.content.startsWith('c!')) return;
     const command = msg.content.trim().split(' ')[1]
-    const args = msg.content.replace('c! ask','').trim();
+    const args = msg.content.trim().replace(/(c!+\s*\w+)\s/,'');
     const handler = client.commands.get(command);
     if(handler) {
       return await handler.execute(msg, args);
