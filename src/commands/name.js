@@ -4,6 +4,10 @@ module.exports = {
   description: 'Manipulate others name!',
   execute: async (message, args) => {
     try {
+      if(!args) {
+        return;
+      }
+
       const cleanText = args.replace(/(<@!\w+>)/,'');
       if (message.mentions.users.size < 1) {
         return message.reply('Tag CELENG nya dulu');

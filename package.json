@@ -14,6 +14,9 @@
   ],
   "author": "titanabrian",
   "license": "MIT",
+  "engines": {
+    "node": ">=12.x"
+  },
   "dependencies": {
     "assert-plus": "^1.0.0",
     "discord.js": "^12.3.1",
