@@ -3,11 +3,12 @@ const Discord = require('discord.js');
 const express = require('express')
 const webServer = express();
 
+webServer.use(express.static('./src/public'))
 webServer.get('/', (req, res) => {
   res.json({
         status: 'healty',
         message: 'Don\'t worry, im healthy'
-      })
+      });
 })
 const BOT_TOKEN = process.env.BOT_TOKEN;
 
@@ -30,13 +31,17 @@ client.on('message', async (msg) => {
     if(msg.author.bot) return;
     if(!msg.content.startsWith('c!')) return;
     const command = msg.content.trim().split(' ')[1]
-    const args = msg.content.trim().replace(/(c!+\s*\w+)\s/,'');
+    let args = msg.content.trim().replace(/(c!+\s*\w+)\s/,'');
+    args = args.replace(/(c!+\s*\w+)/, '');
     const handler = client.commands.get(command);
     if(handler) {
       return await handler.execute(msg, args);
     }
     return;
   } catch (e) {
+    if(e.httpStatus === 403) {
+      return message.reply('Please enable permission :(');
+    }
     return msg.reply('Duh pusing, jadi error dah');
   }
 })

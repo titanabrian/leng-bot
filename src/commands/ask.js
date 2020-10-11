@@ -5,6 +5,10 @@ module.exports = {
   execute: async (message, args) => {
       const tag = `<@${CELENG_ID}>`;
       try {
+        if(!args) {
+          return;
+        }
+
         if(args.toLowerCase() === 'who is the celeng') {
           return await message.channel.send(`The celeng is ${tag}`);
         }
@@ -14,6 +18,7 @@ module.exports = {
         }
 
         return await message.channel.send(`I don't really understand about that. But let me tell you a fun fact that ${tag} is the real CELENG`);
+
       } catch (e) {
         throw e;
       }
