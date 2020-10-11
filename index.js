@@ -29,6 +29,11 @@ client.on('ready', async () => {
 client.on('message', async (msg) => {
   try {
     if(msg.author.bot) return;
+    if(msg.content.toLowerCase().includes('mantap')) {
+      msg.channel.send({
+        files: ['https://media.discordapp.net/attachments/300169651755941889/313669913187188747/dickhand.png?width=540&height=540']
+      })
+    }
     if(!msg.content.startsWith('c!')) return;
     const command = msg.content.trim().split(' ')[1]
     let args = msg.content.trim().replace(/(c!+\s*\w+)\s/,'');
