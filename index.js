@@ -39,6 +39,7 @@ client.on('message', async (msg) => {
     }
     return;
   } catch (e) {
+    console.log(e);
     if(e.httpStatus === 403) {
       return message.reply('Please enable permission :(');
     }
