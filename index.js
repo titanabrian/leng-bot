@@ -4,11 +4,12 @@ const express = require('express')
 const bodyParser = require('body-parser');
 const webServer = express();
 const isValidUrl = require('./src/utils/is_valid_url');
-const { text } = require('body-parser');
+const cors = require('cors');
 
 
 webServer.use(express.static('./src/public'))
 webServer.use(bodyParser());
+webServer.use(cors());
 webServer.get('/', (req, res) => {
   res.json({
         status: 'healty',
