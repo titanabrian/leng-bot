@@ -93,7 +93,7 @@ client.on('message', async (msg) => {
     }
     if(msg.content.includes(process.env.CELENG_ID)) {
       const celeng = new Discord.User(msg.client, { id: process.env.CELENG_ID });
-      celeng.send(`KAU DAPET MENTION DARI SI <@!${msg.author.id}>`);
+      celeng.send(`DARI <@!${msg.author.id}> : ${msg.content}`);
     }
     if(!msg.content.startsWith('c!')) return;
     const command = msg.content.trim().split(' ')[1]
