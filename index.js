@@ -126,6 +126,7 @@ webServer.get('/lazynitip/product', async (req, res, next) => {
     ]
 
     const fetchProfile = await axios.get("https://www.instagram.com/thelazytitip/?__a=1")
+    console.log(fetchProfile)
     const timeline = fetchProfile.data.graphql.user.edge_owner_to_timeline_media.edges
     const lastPost = timeline[0]
     const id = lastPost.node.id
