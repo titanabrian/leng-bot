@@ -124,10 +124,8 @@ webServer.get('/lazynitip/product', async (req, res, next) => {
       "gtx",
       "reboot"
     ]
-    const fetchURL = 'https://www.instagram.com/thelazytitip/?__a=1'
-    console.log(fetchURL)
+    const fetchURL = 'https://igapi.ga/thelazytitip/?__a=1'
     const fetchProfile = await axios.get(fetchURL)
-    console.log(fetchProfile)
     const timeline = fetchProfile.data.graphql.user.edge_owner_to_timeline_media.edges
     const lastPost = timeline[0]
     const id = lastPost.node.id
@@ -148,7 +146,6 @@ webServer.get('/lazynitip/product', async (req, res, next) => {
     }
     return res.json({url})
   } catch (e) {
-    console.log(e)
     return res.status(500).json({
       error_code: 'SOMETHING_WRONG',
       message: 'We investigate the issue'
