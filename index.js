@@ -7,18 +7,8 @@ const webServer = express();
 const axios = require('axios');
 const isValidUrl = require('./src/utils/is_valid_url');
 const cors = require('cors');
-const axios = require('axios');
 
 const ENABLE_CACHE= process.env.ENABLE_CACHE == 'true' || process.env.ENABLE_CACHE == 'TRUE'
-
-//check cache folder
-if(!fs.existsSync(path.join(__dirname,'cache'))) {
-  fs.mkdirSync(path.join(__dirname,'cache'))
-}
-
-if(!fs.existsSync(path.join(__dirname,'cache/notification_lazynitip.json'))) {
-  fs.writeFileSync(path.join(__dirname,'cache/notification_lazynitip.json'),JSON.stringify([]))
-}
 
 webServer.use(express.static('./src/public'))
 webServer.use(bodyParser());
@@ -118,13 +108,7 @@ webServer.post('/share/url',
 
 });
 
-// have to be a json file
-function writeCache(value, file) {
-  const temp = JSON.parse(fs.readFileSync(path.join(__dirname, 'cache',file), 'utf-8'))
-  temp.push(value)
-  fs.writeFileSync(path.join(__dirname,'cache',file), JSON.stringify(temp))
-}
-
+const LAZYNITIP_CACHE=[]
 webServer.get('/lazynitip/product', async (req, res, next) => {
   if(req.headers['x-api-key'] !== process.env.X_API_KEY) {
     return res.status(403).json({
@@ -138,23 +122,23 @@ webServer.get('/lazynitip/product', async (req, res, next) => {
       "rtx",
       "rx",
       "gtx",
+      "reboot"
     ]
 
     const fetchProfile = await axios.get("https://www.instagram.com/thelazytitip/?__a=1")
     const timeline = fetchProfile.data.graphql.user.edge_owner_to_timeline_media.edges
-    const lastPost = timeline[19]
+    const lastPost = timeline[0]
     const id = lastPost.node.id
     const caption = lastPost.node.edge_media_to_caption.edges[0].node.text
     const shortcode = lastPost.node.shortcode
-    const cache = JSON.parse(fs.readFileSync(path.join(__dirname,"cache/notification_lazynitip.json")))
     const url = `https://www.instagram.com/p/${shortcode}`
-    if (!cache.includes(id)) {
+    if (!LAZYNITIP_CACHE.includes(id)) {
       for(let word of keywords){
         if (caption.includes(word[0])){
           const textChannel = webServer.mahasiswaSantai.client.channels.cache.get(process.env.GENERAL_CHANNEL_ID);
           textChannel.send(`Barang baru gan, silahkan check sebelum kehabisan <@${process.env.SUBSCRIBER_ID}>  ${url}`)
           if (ENABLE_CACHE) {
-            writeCache(id, 'notification_lazynitip.json')
+            LAZYNITIP_CACHE.append(id)
           }
           break
         }
