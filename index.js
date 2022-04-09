@@ -21,48 +21,48 @@ webServer.get('/', (req, res) => {
       });
 });
 
-// webServer.post('/share/ayat', async (req, res, next) => {
-//   if(req.headers['x-api-key'] !== process.env.X_API_KEY) {
-//     return res.status(403).json({
-//       error_code: 'INVALID_API_KEY',
-//       message: 'Please enter valid api key'
-//     });
-//   }
+webServer.post('/share/ayat', async (req, res, next) => {
+  if(req.headers['x-api-key'] !== process.env.X_API_KEY) {
+    return res.status(403).json({
+      error_code: 'INVALID_API_KEY',
+      message: 'Please enter valid api key'
+    });
+  }
 
-//   const ayahNumber = Math.floor(Math.random() * 6236) + 1;
-//   try {
-//     const englishAyahResponse = await axios.get(`http://api.alquran.cloud/v1/ayah/${ayahNumber}/en.asad`);
-//     const arabicAyahResponse = await axios.get(`http://api.alquran.cloud/v1/ayah/${ayahNumber}/ar.alafasy`);
-//     const englishAyahObject = englishAyahResponse.data.data;
-//     const arabicAyahObject = arabicAyahResponse.data.data;
-//     const textChannel = webServer.mahasiswaSantai.client.channels.cache.get(process.env.GENERAL_CHANNEL_ID);
+  const ayahNumber = Math.floor(Math.random() * 6236) + 1;
+  try {
+    const englishAyahResponse = await axios.get(`http://api.alquran.cloud/v1/ayah/${ayahNumber}/en.asad`);
+    const arabicAyahResponse = await axios.get(`http://api.alquran.cloud/v1/ayah/${ayahNumber}/ar.alafasy`);
+    const englishAyahObject = englishAyahResponse.data.data;
+    const arabicAyahObject = arabicAyahResponse.data.data;
+    const textChannel = webServer.mahasiswaSantai.client.channels.cache.get(process.env.GENERAL_CHANNEL_ID);
 
-//     if(!textChannel) {
-//       res.status(404).json({
-//         error_code: 'TEXT_CHANNEL_NOT_FOUND',
-//         message: 'Cannot find particular text channel'
-//       });
-//     }
+    if(!textChannel) {
+      res.status(404).json({
+        error_code: 'TEXT_CHANNEL_NOT_FOUND',
+        message: 'Cannot find particular text channel'
+      });
+    }
 
-//     const text =[
-//       `SIRAMAN KALBU UNTUK <@${process.env.CELENG_ID}>`,
-//       '',
-//       arabicAyahObject.text,
-//       '',
-//       '`'+englishAyahObject.text+'`',
-//       '',
-//       `${englishAyahObject.surah.englishName}:${englishAyahObject.numberInSurah}`
-//     ];
+    const text =[
+      `SIRAMAN KALBU UNTUK <@${process.env.CELENG_ID}>`,
+      '',
+      arabicAyahObject.text,
+      '',
+      '`'+englishAyahObject.text+'`',
+      '',
+      `${englishAyahObject.surah.englishName}:${englishAyahObject.numberInSurah}`
+    ];
 
-//     await textChannel.send(text.join('\n'));
-//     res.json(englishAyahObject);
-//   } catch (e) {
-//       res.status(e.response.data.code).json({
-//         error_code: e.response.data.status.toUpperCase(),
-//         message: e.response.data.data
-//       })
-//   }
-// })
+    await textChannel.send(text.join('\n'));
+    res.json(englishAyahObject);
+  } catch (e) {
+      res.status(e.response.data.code).json({
+        error_code: e.response.data.status.toUpperCase(),
+        message: e.response.data.data
+      })
+  }
+})
 
 webServer.post('/share/url',
 (req, res, next) => {
@@ -180,11 +180,11 @@ client.on('ready', async () => {
 client.on('message', async (msg) => {
   try {
     if(msg.author.bot) return;
-    // if(msg.content.toLowerCase().includes('mantap')) {
-    //   msg.channel.send({
-    //     files: ['https://media.discordapp.net/attachments/300169651755941889/313669913187188747/dickhand.png?width=540&height=540']
-    //   })
-    // }
+    if(msg.content.toLowerCase().includes('mantap')) {
+      msg.channel.send({
+        files: ['https://media.discordapp.net/attachments/300169651755941889/313669913187188747/dickhand.png?width=540&height=540']
+      })
+    }
     if(msg.content.includes(process.env.CELENG_ID)) {
       const celeng = new Discord.User(msg.client, { id: process.env.CELENG_ID });
       celeng.send(`DARI <@!${msg.author.id}> : ${msg.content}`);
