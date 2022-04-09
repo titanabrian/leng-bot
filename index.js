@@ -7,6 +7,7 @@ const webServer = express();
 const axios = require('axios');
 const isValidUrl = require('./src/utils/is_valid_url');
 const cors = require('cors');
+require('dotenv').config();
 
 const ENABLE_CACHE= process.env.ENABLE_CACHE == 'true' || process.env.ENABLE_CACHE == 'TRUE'
 
@@ -20,48 +21,48 @@ webServer.get('/', (req, res) => {
       });
 });
 
-webServer.post('/share/ayat', async (req, res, next) => {
-  if(req.headers['x-api-key'] !== process.env.X_API_KEY) {
-    return res.status(403).json({
-      error_code: 'INVALID_API_KEY',
-      message: 'Please enter valid api key'
-    });
-  }
+// webServer.post('/share/ayat', async (req, res, next) => {
+//   if(req.headers['x-api-key'] !== process.env.X_API_KEY) {
+//     return res.status(403).json({
+//       error_code: 'INVALID_API_KEY',
+//       message: 'Please enter valid api key'
+//     });
+//   }
 
-  const ayahNumber = Math.floor(Math.random() * 6236) + 1;
-  try {
-    const englishAyahResponse = await axios.get(`http://api.alquran.cloud/v1/ayah/${ayahNumber}/en.asad`);
-    const arabicAyahResponse = await axios.get(`http://api.alquran.cloud/v1/ayah/${ayahNumber}/ar.alafasy`);
-    const englishAyahObject = englishAyahResponse.data.data;
-    const arabicAyahObject = arabicAyahResponse.data.data;
-    const textChannel = webServer.mahasiswaSantai.client.channels.cache.get(process.env.GENERAL_CHANNEL_ID);
+//   const ayahNumber = Math.floor(Math.random() * 6236) + 1;
+//   try {
+//     const englishAyahResponse = await axios.get(`http://api.alquran.cloud/v1/ayah/${ayahNumber}/en.asad`);
+//     const arabicAyahResponse = await axios.get(`http://api.alquran.cloud/v1/ayah/${ayahNumber}/ar.alafasy`);
+//     const englishAyahObject = englishAyahResponse.data.data;
+//     const arabicAyahObject = arabicAyahResponse.data.data;
+//     const textChannel = webServer.mahasiswaSantai.client.channels.cache.get(process.env.GENERAL_CHANNEL_ID);
 
-    if(!textChannel) {
-      res.status(404).json({
-        error_code: 'TEXT_CHANNEL_NOT_FOUND',
-        message: 'Cannot find particular text channel'
-      });
-    }
+//     if(!textChannel) {
+//       res.status(404).json({
+//         error_code: 'TEXT_CHANNEL_NOT_FOUND',
+//         message: 'Cannot find particular text channel'
+//       });
+//     }
 
-    const text =[
-      `SIRAMAN KALBU UNTUK <@${process.env.CELENG_ID}>`,
-      '',
-      arabicAyahObject.text,
-      '',
-      '`'+englishAyahObject.text+'`',
-      '',
-      `${englishAyahObject.surah.englishName}:${englishAyahObject.numberInSurah}`
-    ];
+//     const text =[
+//       `SIRAMAN KALBU UNTUK <@${process.env.CELENG_ID}>`,
+//       '',
+//       arabicAyahObject.text,
+//       '',
+//       '`'+englishAyahObject.text+'`',
+//       '',
+//       `${englishAyahObject.surah.englishName}:${englishAyahObject.numberInSurah}`
+//     ];
 
-    await textChannel.send(text.join('\n'));
-    res.json(englishAyahObject);
-  } catch (e) {
-      res.status(e.response.data.code).json({
-        error_code: e.response.data.status.toUpperCase(),
-        message: e.response.data.data
-      })
-  }
-})
+//     await textChannel.send(text.join('\n'));
+//     res.json(englishAyahObject);
+//   } catch (e) {
+//       res.status(e.response.data.code).json({
+//         error_code: e.response.data.status.toUpperCase(),
+//         message: e.response.data.data
+//       })
+//   }
+// })
 
 webServer.post('/share/url',
 (req, res, next) => {
@@ -121,22 +122,21 @@ webServer.get('/lazynitip/product', async (req, res, next) => {
       "ddr4",
       "rtx",
       "rx",
-      "gtx",
-      "reboot"
+      "gtx"
     ]
 
     const fetchProfile = await axios.get("https://www.instagram.com/thelazytitip/?__a=1")
     const timeline = fetchProfile.data.graphql.user.edge_owner_to_timeline_media.edges
     const lastPost = timeline[0]
     const id = lastPost.node.id
-    const caption = lastPost.node.edge_media_to_caption.edges[0].node.text
+    const caption = lastPost.node.edge_media_to_caption.edges[0].node.text.toLowerCase()
     const shortcode = lastPost.node.shortcode
     const url = `https://www.instagram.com/p/${shortcode}`
     if (!LAZYNITIP_CACHE.includes(id)) {
       for(let word of keywords){
-        if (caption.includes(word[0])){
+        if (caption.includes(word)){
           const textChannel = webServer.mahasiswaSantai.client.channels.cache.get(process.env.GENERAL_CHANNEL_ID);
-          textChannel.send(`Barang baru gan, silahkan check sebelum kehabisan <@${process.env.SUBSCRIBER_ID}>  ${url}`)
+          textChannel.send(`Barang baru gan, silahkan check sebelum kehabisan <@&${process.env.SUBSCRIBER_ID}>  ${url}`)
           if (ENABLE_CACHE) {
             LAZYNITIP_CACHE.append(id)
           }
@@ -146,6 +146,7 @@ webServer.get('/lazynitip/product', async (req, res, next) => {
     }
     return res.json({url})
   } catch (e) {
+    console.log(e)
     return res.status(500).json({
       error_code: 'SOMETHING_WRONG',
       message: 'We investigate the issue'
@@ -173,17 +174,17 @@ client.on('ready', async () => {
   console.log(`listening on ${PORT}`);
 })
   console.log('Bot is online!');
-  client.user.setActivity('Everybody is a CELENG')
+  client.user.setActivity('fsociety00.dat')
 })
 
 client.on('message', async (msg) => {
   try {
     if(msg.author.bot) return;
-    if(msg.content.toLowerCase().includes('mantap')) {
-      msg.channel.send({
-        files: ['https://media.discordapp.net/attachments/300169651755941889/313669913187188747/dickhand.png?width=540&height=540']
-      })
-    }
+    // if(msg.content.toLowerCase().includes('mantap')) {
+    //   msg.channel.send({
+    //     files: ['https://media.discordapp.net/attachments/300169651755941889/313669913187188747/dickhand.png?width=540&height=540']
+    //   })
+    // }
     if(msg.content.includes(process.env.CELENG_ID)) {
       const celeng = new Discord.User(msg.client, { id: process.env.CELENG_ID });
       celeng.send(`DARI <@!${msg.author.id}> : ${msg.content}`);
