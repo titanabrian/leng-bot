@@ -152,7 +152,6 @@ webServer.get('/lazynitip/product', async (req, res, next) => {
     }
     return res.json({url})
   } catch (e) {
-    console.log(e)
     return res.status(500).json({
       error_code: 'SOMETHING_WRONG',
       message: 'We investigate the issue'
