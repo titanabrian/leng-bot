@@ -144,7 +144,7 @@ webServer.get('/lazynitip/product', async (req, res, next) => {
           const textChannel = webServer.mahasiswaSantai.client.channels.cache.get(process.env.GENERAL_CHANNEL_ID);
           textChannel.send(`Barang baru gan, silahkan check sebelum kehabisan <@&${process.env.SUBSCRIBER_ID}>  ${url}`)
           if (ENABLE_CACHE) {
-            LAZYNITIP_CACHE.append(id)
+            LAZYNITIP_CACHE.push(id)
           }
           break
         }
