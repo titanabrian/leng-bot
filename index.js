@@ -128,7 +128,7 @@ webServer.get('/lazynitip/product', async (req, res, next) => {
     const fetchProfile = await axios.get("https://www.instagram.com/thelazytitip/channel/?__a=1", {
       headers: {
         "User-Agent":" Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36",
-        Cookie : "sessionid="+process.env.INSTAGRAM_SESSION_ID
+        Cookie : `sessionid=${process.env.INSTAGRAM_SESSION_ID}`
       },
       withCredentials: true
     })
