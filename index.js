@@ -125,7 +125,13 @@ webServer.get('/lazynitip/product', async (req, res, next) => {
       "gtx"
     ]
 
-    const fetchProfile = await axios.get("https://www.instagram.com/thelazytitip/?__a=1")
+    const fetchProfile = await axios.get("https://www.instagram.com/thelazytitip/channel/?__a=1", {
+      headers: {
+        "User-Agent":" Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36",
+        Cookie : `sessionid=${process.env.INSTAGRAM_SESSION_ID}`
+      },
+      withCredentials: true
+    })
     const timeline = fetchProfile.data.graphql.user.edge_owner_to_timeline_media.edges
     const lastPost = timeline[0]
     const id = lastPost.node.id
@@ -138,7 +144,7 @@ webServer.get('/lazynitip/product', async (req, res, next) => {
           const textChannel = webServer.mahasiswaSantai.client.channels.cache.get(process.env.GENERAL_CHANNEL_ID);
           textChannel.send(`Barang baru gan, silahkan check sebelum kehabisan <@&${process.env.SUBSCRIBER_ID}>  ${url}`)
           if (ENABLE_CACHE) {
-            LAZYNITIP_CACHE.append(id)
+            LAZYNITIP_CACHE.push(id)
           }
           break
         }
@@ -146,7 +152,6 @@ webServer.get('/lazynitip/product', async (req, res, next) => {
     }
     return res.json({url})
   } catch (e) {
-    console.log(e)
     return res.status(500).json({
       error_code: 'SOMETHING_WRONG',
       message: 'We investigate the issue'
