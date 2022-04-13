@@ -1,19 +1,22 @@
-const fs = require('fs');
-const path = require('path');
-const Discord = require('discord.js');
 const express = require('express')
 const bodyParser = require('body-parser');
 const webServer = express();
 const axios = require('axios');
-const isValidUrl = require('./src/utils/is_valid_url');
+const isValidUrl = require('../src/utils/is_valid_url');
 const cors = require('cors');
+const Bot = require('../src/libs/bot');
 require('dotenv').config();
 
 const ENABLE_CACHE= process.env.ENABLE_CACHE == 'true' || process.env.ENABLE_CACHE == 'TRUE'
+const BOT_TOKEN = process.env.BOT_TOKEN;
 
+const bot = new Bot(BOT_TOKEN);
+bot.auth();
 webServer.use(express.static('./src/public'))
 webServer.use(bodyParser());
 webServer.use(cors());
+webServer.guild = bot.getDefaultGuild();
+
 webServer.get('/', (req, res) => {
   res.json({
         status: 'healty',
@@ -35,7 +38,7 @@ webServer.post('/share/ayat', async (req, res, next) => {
     const arabicAyahResponse = await axios.get(`http://api.alquran.cloud/v1/ayah/${ayahNumber}/ar.alafasy`);
     const englishAyahObject = englishAyahResponse.data.data;
     const arabicAyahObject = arabicAyahResponse.data.data;
-    const textChannel = webServer.mahasiswaSantai.client.channels.cache.get(process.env.GENERAL_CHANNEL_ID);
+    const textChannel = webServer.guild.client.channels.cache.get(process.env.GENERAL_CHANNEL_ID);
 
     if(!textChannel) {
       res.status(404).json({
@@ -93,7 +96,7 @@ webServer.post('/share/url',
 },
 (req, res) => {
   const url = req.body.url;
-  const textChannel = webServer.mahasiswaSantai.client.channels.cache.get(process.env.MEME_CHANNEL_ID);
+  const textChannel = webServer.guild.client.channels.cache.get(process.env.MEME_CHANNEL_ID);
   if(!textChannel) {
     res.status(404).json({
       error_code: 'TEXT_CHANNEL_NOT_FOUND',
@@ -141,7 +144,7 @@ webServer.get('/lazynitip/product', async (req, res, next) => {
     if (!LAZYNITIP_CACHE.includes(id)) {
       for(let word of keywords){
         if (caption.includes(word)){
-          const textChannel = webServer.mahasiswaSantai.client.channels.cache.get(process.env.GENERAL_CHANNEL_ID);
+          const textChannel = webServer.guild.client.channels.cache.get(process.env.GENERAL_CHANNEL_ID);
           textChannel.send(`Barang baru gan, silahkan check sebelum kehabisan <@&${process.env.SUBSCRIBER_ID}>  ${url}`)
           if (ENABLE_CACHE) {
             LAZYNITIP_CACHE.push(id)
@@ -160,56 +163,6 @@ webServer.get('/lazynitip/product', async (req, res, next) => {
 
 })
 
-const BOT_TOKEN = process.env.BOT_TOKEN;
-
-const client = new Discord.Client();
-client.commands = new Discord.Collection();
-
-const commandHandlers = fs.readdirSync('./src/commands').filter(file => file.endsWith('.js'));
-for (const file of commandHandlers) {
-  const command = require(`./src/commands/${file}`);
-  client.commands.set(command.name, command)
-}
-
-client.on('ready', async () => {
-  const mahasiswaSantai = new Discord.Guild(client, { id: process.env.MAHASISWA_SANTAI_SERVER_ID})
-  webServer.mahasiswaSantai = mahasiswaSantai;
-  const PORT = process.env.PORT || 8081
-  webServer.listen(PORT, () => {
-  console.log(`listening on ${PORT}`);
-})
-  console.log('Bot is online!');
-  client.user.setActivity('fsociety00.dat')
-})
-
-client.on('message', async (msg) => {
-  try {
-    if(msg.author.bot) return;
-    if(msg.content.toLowerCase().includes('mantap')) {
-      msg.channel.send({
-        files: ['https://media.discordapp.net/attachments/300169651755941889/313669913187188747/dickhand.png?width=540&height=540']
-      })
-    }
-    if(msg.content.includes(process.env.CELENG_ID)) {
-      const celeng = new Discord.User(msg.client, { id: process.env.CELENG_ID });
-      celeng.send(`DARI <@!${msg.author.id}> : ${msg.content}`);
-    }
-    if(!msg.content.startsWith('c!')) return;
-    const command = msg.content.trim().split(' ')[1]
-    let args = msg.content.trim().replace(/(c!+\s*\w+)\s/,'');
-    args = args.replace(/(c!+\s*\w+)/, '');
-    const handler = client.commands.get(command);
-    if(handler) {
-      return await handler.execute(msg, args);
-    }
-    return;
-  } catch (e) {
-    console.log(e);
-    if(e.httpStatus === 403) {
-      return message.reply('Please enable permission :(');
-    }
-    return msg.reply('Duh pusing, jadi error dah');
-  }
-})
-
-client.login(BOT_TOKEN);
+webServer.listen(3000, () => {
+  console.log(`listening on 3000`)
+});
