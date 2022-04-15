@@ -2,7 +2,7 @@
 
 const chessLinks = require('../../src/storage/default_chess_link.storage.json');
 const papStorage = require('../../src/storage/default_pap.storage.json');
-const isValidUrl = require('../../src/utils/is_valid_url');
+const isValidUrl = require('../../utils/is_valid_url');
 
 module.exports = {
   ReplyAsk: async (req, args) => {

@@ -1,7 +1,6 @@
 'use strict'
 
 const Discord = require('discord.js');
-
 class Bot {
   constructor(token, prefix){
     this.token = token;

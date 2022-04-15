@@ -1,7 +1,7 @@
 'use strict'
 
 const token = process.env.BOT_TOKEN;
-const Bot = require('../src/libs/bot')
+const Bot = require('../libs/bot')
 const CommandSet = require('discord-routes').CommandSet
 const bot = new Bot(token);
 const router = new CommandSet(bot.client, 'c!');

@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "noImplicitAny": true,
+    "moduleResolution": "node",
+    "lib": ["es2018", "DOM"],
+    "module": "commonjs",
+    "target": "es2018",
+    "paths": {
+      "*": ["node_modules/*", "src/types/*"]
+    },
+    "typeRoots": ["node_modules/@types", "src/types"],
+    "rootDir":".",
+    "baseUrl":".",
+    "outDir": "./dist"
+  },
+  "include": ["./src/**/*", "jest.config.js", "./src/web_server/index.d.ts"],
+  "exclude": ["node_modules/*"]
+}
