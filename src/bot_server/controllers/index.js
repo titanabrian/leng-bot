@@ -63,10 +63,6 @@ module.exports = {
         return req.reply('Oops, CELENG nya nggak ketemu');
       }
 
-      if(!allowedChangedNick.includes(userId)) {
-        return req.reply('Oops, cuma berani ganti nama si CELENG');
-      }
-
       return await guildMember.setNickname(cleanText.substring(0,32));
     } catch (e) {
       if(e.httpStatus === 403) {
