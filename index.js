@@ -217,7 +217,8 @@ client.on('interactionCreate', async interaction => {
 });
 
 client.on('ready', async () => {
-  setInterval(()=>{client.user.setActivity('RAM and GPU in TLT IG🗿',{ type: 3 })}, 3600000);
+  client.user.setActivity('RAM and GPU in TLT IG🗿',{ type: 3 })
+  setInterval(()=>{client.user.setActivity('RAM and GPU in TLT IG🗿',{ type: 3 })}, 60*60*1000);
   const mahasiswaSantai = new Discord.Guild(client, { id: process.env.GENERAL_CHANNEL_ID})
   webServer.mahasiswaSantai = mahasiswaSantai;
   const PORT = process.env.PORT || 8081
