@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
+const { REST } = require('@discordjs/rest');
 const Discord = require('discord.js');
+const { Client, GatewayIntentBits, Partials, Routes } = require('discord.js');
 const express = require('express')
 const bodyParser = require('body-parser');
 const webServer = express();
@@ -156,34 +158,84 @@ webServer.get('/lazynitip/product', async (req, res, next) => {
 })
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
+const CLIENT_ID = process.env.CLIENT_ID;
+const GUILD_ID = process.env.GENERAL_CHANNEL_ID;
 
-const client = new Discord.Client();
+const client = new Discord.Client({
+  intents: [
+    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildBans,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+  ],
+  partials: [Partials.Channel],
+});
 client.commands = new Discord.Collection();
 
 const commandHandlers = fs.readdirSync('./src/commands').filter(file => file.endsWith('.js'));
+const commandArray = [];
 for (const file of commandHandlers) {
   const command = require(`./src/commands/${file}`);
   client.commands.set(command.name, command)
+  if (command.data) {
+    commandArray.push(command.data.toJSON());
+  }
+  console.log(typeof(GUILD_ID))
 }
 
+const rest = new REST({ version: '10' }).setToken(BOT_TOKEN);
+try {
+  console.log("Started refreshing application (/) commands.");
+
+  rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), {
+    body: commandArray,
+  })
+
+  console.log("Successfully reloaded application (/) commands.");
+} catch (error) {
+  console.error(error);
+}
+
+client.on('interactionCreate', async interaction => {
+	if (!interaction.isChatInputCommand()) return;
+
+	if (interaction.commandName === 'apicheck') {
+    const fetchProfile = await axios.get("https://www.instagram.com/thelazytitip/channel/?__a=1&__d=dis", {
+            headers: {
+                "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.49",
+                Cookie: process.env.INSTAGRAM_COOKIE
+            },
+            withCredentials: true
+        })
+        const timeline = fetchProfile.data.graphql.user.edge_owner_to_timeline_media.edges
+
+        if(timeline) {
+          await interaction.reply('All is good!');
+        }
+	}
+});
+
 client.on('ready', async () => {
-  const mahasiswaSantai = new Discord.Guild(client, { id: process.env.MAHASISWA_SANTAI_SERVER_ID})
+  setInterval(()=>{client.user.setActivity('RAM and GPU in TLT IG🗿',{ type: 3 })}, 3600000);
+  const mahasiswaSantai = new Discord.Guild(client, { id: process.env.GENERAL_CHANNEL_ID})
   webServer.mahasiswaSantai = mahasiswaSantai;
   const PORT = process.env.PORT || 8081
   webServer.listen(PORT, () => {
   console.log(`listening on ${PORT}`);
 })
   console.log('Bot is online!');
-  client.user.setActivity('fsociety00.dat')
 })
 
-client.on('message', async (msg) => {
+client.on('messageCreate', async (msg) => {
   try {
     if(msg.author.bot) return;
-    if(msg.content.toLowerCase().includes('mantap')) {
-      msg.channel.send({
-        files: ['https://media.discordapp.net/attachments/300169651755941889/313669913187188747/dickhand.png?width=540&height=540']
-      })
+    console.log(`[${new Date().toLocaleString()}] Message from ${msg.author.username}: ${msg.content}`);
+    if(msg.content.toLowerCase().includes('mantap') || msg.content.toLowerCase().includes('mania')) {
+      msg.channel.send('https://media.discordapp.net/attachments/300169651755941889/313669913187188747/dickhand.png?width=540&height=540')
+    }
+    if(msg.content.toLowerCase().includes('pancasila')) {
+      msg.channel.send('https://cdn.discordapp.com/avatars/306332867263332354/f700acb224a6cfcac56bb243914b1852.png?size=512')
     }
     if(msg.content.includes(process.env.CELENG_ID)) {
       const celeng = new Discord.User(msg.client, { id: process.env.CELENG_ID });
@@ -201,7 +253,7 @@ client.on('message', async (msg) => {
   } catch (e) {
     console.log(e);
     if(e.httpStatus === 403) {
-      return message.reply('Please enable permission :(');
+      return msg.reply('Please enable permission :(');
     }
     return msg.reply('Duh pusing, jadi error dah');
   }

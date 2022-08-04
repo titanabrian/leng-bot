@@ -4,7 +4,7 @@ module.exports = {
   description: 'Let leng bot to talk',
   execute: async (message, args) => {
     const { voice } = message.member;
-    if(!voice.channelID) {
+    if(!voice.channelId) {
       return message.channel.send(`<@!${process.env.CELENG_ID}> masuk dong kangen aku pengen ngobrol!`);
     }
 
