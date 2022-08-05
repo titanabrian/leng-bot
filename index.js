@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { spawn } = require('child_process');
 const { REST } = require('@discordjs/rest');
 const Discord = require('discord.js');
 const { Client, GatewayIntentBits, Partials, Routes } = require('discord.js');
@@ -14,7 +15,10 @@ require('dotenv').config();
 const ENABLE_CACHE= process.env.ENABLE_CACHE == 'true' || process.env.ENABLE_CACHE == 'TRUE'
 
 webServer.use(express.static('./src/public'))
-webServer.use(bodyParser());
+webServer.use(bodyParser.json());
+webServer.use(bodyParser.urlencoded({
+  extended: true
+}));
 webServer.use(cors());
 webServer.get('/', (req, res) => {
   res.json({
@@ -127,12 +131,24 @@ webServer.get('/lazynitip/product', async (req, res, next) => {
       "gtx"
     ]
 
-    const fetchProfile = await axios.get("https://www.instagram.com/thelazytitip/?__a=1")
+    const fetchProfile = await axios.get("https://www.instagram.com/thelazytitip/channel/?__a=1&__d=dis", {
+      headers: {
+        "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.49",
+        Cookie: process.env.INSTAGRAM_COOKIE
+      },
+      withCredentials: true
+    })
+    if (typeof fetchProfile.data.graphql !== 'undefined') {
+      console.log(e,"\nPlease renew your instagram cookies.")
+      report = client.channels.cache.get(process.env.GENERAL_CHANNEL_ID);
+      return await report.send('Please renew <@303900226240905216> instagram cookies.')
+    }
     const timeline = fetchProfile.data.graphql.user.edge_owner_to_timeline_media.edges
     const lastPost = timeline[0]
     const id = lastPost.node.id
     const caption = lastPost.node.edge_media_to_caption.edges[0].node.text.toLowerCase()
     const shortcode = lastPost.node.shortcode
+    console.log(fetchProfile.data.graphql.user)
     const url = `https://www.instagram.com/p/${shortcode}`
     if (!LAZYNITIP_CACHE.includes(id)) {
       for(let word of keywords){
@@ -148,8 +164,7 @@ webServer.get('/lazynitip/product', async (req, res, next) => {
     }
     return res.json({url})
   } catch (e) {
-    console.log(e)
-    return res.status(500).json({
+        return res.status(500).json({
       error_code: 'SOMETHING_WRONG',
       message: 'We investigate the issue'
     })
@@ -181,7 +196,6 @@ for (const file of commandHandlers) {
   if (command.data) {
     commandArray.push(command.data.toJSON());
   }
-  console.log(typeof(GUILD_ID))
 }
 
 const rest = new REST({ version: '10' }).setToken(BOT_TOKEN);
@@ -202,17 +216,17 @@ client.on('interactionCreate', async interaction => {
 
 	if (interaction.commandName === 'apicheck') {
     const fetchProfile = await axios.get("https://www.instagram.com/thelazytitip/channel/?__a=1&__d=dis", {
-            headers: {
-                "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.49",
-                Cookie: process.env.INSTAGRAM_COOKIE
-            },
-            withCredentials: true
-        })
-        const timeline = fetchProfile.data.graphql.user.edge_owner_to_timeline_media.edges
-
-        if(timeline) {
-          await interaction.reply('All is good!');
-        }
+      headers: {
+        "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.49",
+        Cookie: process.env.INSTAGRAM_COOKIE
+      },
+      withCredentials: true
+    })
+    if (typeof fetchProfile.data.graphql !== 'undefined') {
+      await interaction.reply('All is good!');
+    } else {
+      await interaction.reply('It broke 😔');
+    }
 	}
 });
 
@@ -231,7 +245,6 @@ client.on('ready', async () => {
 client.on('messageCreate', async (msg) => {
   try {
     if(msg.author.bot) return;
-    console.log(`[${new Date().toLocaleString()}] Message from ${msg.author.username}: ${msg.content}`);
     if(msg.content.toLowerCase().includes('mantap') || msg.content.toLowerCase().includes('mania')) {
       msg.channel.send('https://media.discordapp.net/attachments/300169651755941889/313669913187188747/dickhand.png?width=540&height=540')
     }
@@ -248,6 +261,7 @@ client.on('messageCreate', async (msg) => {
     args = args.replace(/(c!+\s*\w+)/, '');
     const handler = client.commands.get(command);
     if(handler) {
+      console.log(`[${new Date().toLocaleString()}] Message from ${msg.author.username}: ${msg.content}`);
       return await handler.execute(msg, args);
     }
     return;
